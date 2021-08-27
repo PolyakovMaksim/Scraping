@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup as bs
 from pymongo import MongoClient
 import datetime
+import hashlib
 
 now = datetime.datetime.now()
 
@@ -74,12 +75,12 @@ for i in range(int(number_page)):
                        'currency': currency, 'employer': employer,
                        'location': location}
 
-            # расчитывается хэш, чтобы не добавлять повторяющиеся записи в БД
-            #vacancy_hash = abs(hash(str(my_dict)))  Долго провозился с hash и hashlib и к сожалению не смог победить
+            vacancy_hash = hashlib.sha1() # Для дедублицирования, link специально не взял, на случай замены
+            vacancy_hash.update(repr(my_dict).encode('utf-8'))
 
             try:
-                # здесь в качестве id нужно передать hash и тогда добавятся только новые уникальные записи
-                hh_vacancy.insert_one({'vacancu_name': vacancu_name, 'link': link, 'source': source,
+
+                hh_vacancy.insert_one({'_id': vacancy_hash, 'vacancu_name': vacancu_name, 'link': link, 'source': source,
                        'min_salary': min_salary,
                        'max_salary': max_salary, 'currency': currency, 'employer': employer,
                        'location': location, 'create_date': str(now.date())})
