@@ -8,10 +8,8 @@ name_sheets = ['Sheet1']
 
 for name_sheet in name_sheets:
     df = pd.read_excel(io = file_name, sheet_name = name_sheet)
+    df = df.rename(columns = {'Unnamed: 1' : 'col2'})
 
-    for el in df['Unnamed: 1']:  # 'Unnamed: 1' название колонки конкретно в этом файле, нужно поискать как используется индекс
-        try:
-            campaign = el.split('Izejosais pärskaitijums ( # 183 )')[1]
-            print(campaign)
-        except:
-            continue
+    flag = df.col2.str.find('Izejosais pärskaitijums ( # 183 )')
+    index = df[flag > 0 ].index.tolist()
+    print(df.loc[index])
